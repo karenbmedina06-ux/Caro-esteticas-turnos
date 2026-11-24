@@ -112,4 +112,19 @@ function whatsappNumber(raw){let n=String(raw||"").replace(/\D/g,"");if(n.starts
 function bookingConfirmationText(b){return `¡Hola ${b.name}! 💜\nTu turno en Caro Estética está confirmado.\n\nServicio: ${b.service}\nFecha: ${b.date}\nHorario: ${b.time} hs.\n\n¡Te esperamos!`;}
 async function setStatus(id,status){let waWindow=null;try{const b=bookings.find(x=>x.id===id);if(status==="Confirmado"&&b){waWindow=window.open("about:blank","_blank");}const {error}=await db.from("bookings").update({status}).eq("id",id);if(error)throw error;await refreshAdmin();if(status==="Confirmado"&&b){const phone=whatsappNumber(b.phone);if(!phone){if(waWindow)waWindow.close();alert("El turno quedó confirmado, pero no hay un teléfono válido para abrir WhatsApp.");return;}const url="https://wa.me/"+phone+"?text="+encodeURIComponent(bookingConfirmationText(b));if(waWindow)waWindow.location.href=url;else alert("El turno quedó confirmado. Permití las ventanas emergentes para abrir WhatsApp y enviar el mensaje.");}}catch(e){if(waWindow)waWindow.close();showError(e)}}
 db.auth.onAuthStateChange(()=>{setTimeout(refreshAdmin,0)});
-(async()=>{await refreshAdmin();})();</script></body></html>
+(async()=>{await refreshAdmin();})();</script>
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+
+<script>
+window.OneSignalDeferred = window.OneSignalDeferred || [];
+window.OneSignalDeferred.push(async function(OneSignal) {
+  await OneSignal.init({
+    appId: "b636af18-6af2-4334-a384-ca1ccfbd2fb9",
+    serviceWorkerPath: "OneSignalSDKWorker.js",
+    serviceWorkerParam: {
+      scope: "/Caro-esteticas-turnos/"
+    }
+  });
+});
+</script>
+</body></html>
